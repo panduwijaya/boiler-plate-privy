@@ -1,0 +1,7 @@
+cake-store
+.idea
+.DS_Store
+config/app.yaml
+vendor
+go.sum
+docs
