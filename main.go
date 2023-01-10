@@ -5,6 +5,6 @@ import (
 	"cake-store/cake-store/cmd"
 )
 
-func main()  {
+func Main()  {
 	cmd.Start()
 }
