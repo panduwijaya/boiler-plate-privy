@@ -39,7 +39,8 @@ func TestGetEntries(t *testing.T) {
 		//fmt.Println("Payload : ",  strings.ReplaceAll( data.ListTest[i].Payload, `'`, `"`))
 		
 		
-		var jsonStr = []byte(`{"title":"Blueberry cheesecake","description":"cheesecake made of Blueberry","rating":4,"image":"https://img.taste.com.au/ynYrqkOs/w720-h480-cfill-q80/taste/2016/11sunny-lemon-cheesecake-102220-1.jpeg"}`)
+		var jsonStr = []byte(strings.ReplaceAll( data.ListTest[i].Payload, `'`, `"`))
+
 		request, err := http.NewRequest(data.ListTest[i].Method, data.ListTest[i].Url, bytes.NewBuffer(jsonStr))
 		request.Header.Set("Content-Type", "application/json")
 		response, err := client.Do(request)
