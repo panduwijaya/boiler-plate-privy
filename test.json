@@ -3,6 +3,13 @@
     [
         {
             "method":"GET",
+            "module":"liveness",
+            "url":"http://127.0.0.1:8081/liveness",
+            "payload":"",
+            "expected":"{'code':200,'message':'ok'}"
+        },
+        {
+            "method":"GET",
             "module":"getdetail",
             "url":"http://127.0.0.1:8081/cakes/5",
             "payload":"",

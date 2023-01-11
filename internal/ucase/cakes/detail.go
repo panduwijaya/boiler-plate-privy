@@ -56,14 +56,16 @@ func (u *cakeDetail) Serve(dctx *appctx.Data) appctx.Response {
 	id, err := strconv.Atoi(mux.Vars(dctx.Request)["id"])
 
 	param.ID = id
-	
+	logger.Info(param.ID)
 	dr, err := u.repo.FindOne(ctx, param)
-	logger.Info(dr)
+	
 	if err != nil {
 	    tracer.SpanError(ctx, err)
 		logger.ErrorWithContext(ctx, fmt.Sprintf("error find data to database: %v", err), lf...)
 		return *appctx.NewResponse().WithMsgKey(consts.RespError)
 	}
+
+	if 
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("success fetch cakes to database"), lf...)
 	return *appctx.NewResponse().
