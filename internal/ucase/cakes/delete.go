@@ -5,6 +5,7 @@ package cakes
 import (
 	"fmt"
 	"strconv"
+
 	"github.com/gorilla/mux"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
@@ -37,8 +38,8 @@ func (u *cakeDelete) Serve(dctx *appctx.Data) appctx.Response {
 			logger.EventName("cakeDelete"),
 		)
 	)
-    defer tracer.SpanFinish(ctx)
-	
+	defer tracer.SpanFinish(ctx)
+
 	err := dctx.Cast(&param)
 	if err != nil {
 		logger.WarnWithContext(ctx, fmt.Sprintf("error parsing query url: %v", err), lf...)
@@ -60,12 +61,12 @@ func (u *cakeDelete) Serve(dctx *appctx.Data) appctx.Response {
 	dr, err := u.repo.Delete(ctx, param)
 	logger.Info(dr)
 	if err != nil {
-	    tracer.SpanError(ctx, err)
+		tracer.SpanError(ctx, err)
 		logger.ErrorWithContext(ctx, fmt.Sprintf("error find data to database: %v", err), lf...)
 		return *appctx.NewResponse().WithMsgKey(consts.RespError)
 	}
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("success fetch cakes to database"), lf...)
 	return *appctx.NewResponse().
-            WithMsgKey(consts.RespSuccess)
+		WithMsgKey(consts.RespSuccess)
 }
