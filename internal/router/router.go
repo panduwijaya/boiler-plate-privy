@@ -2,24 +2,25 @@
 package router
 
 import (
-    "context"
+	"context"
 	"encoding/json"
 	"net/http"
 	"runtime/debug"
 
 	"cake-store/cake-store/internal/appctx"
-    "cake-store/cake-store/internal/bootstrap"
-    "cake-store/cake-store/internal/consts"
-    "cake-store/cake-store/internal/handler"
-    "cake-store/cake-store/internal/middleware"
-    "cake-store/cake-store/internal/ucase"
-	"cake-store/cake-store/internal/ucase/cakes"
+	"cake-store/cake-store/internal/bootstrap"
+	"cake-store/cake-store/internal/consts"
+	"cake-store/cake-store/internal/handler"
+	"cake-store/cake-store/internal/middleware"
 	"cake-store/cake-store/internal/repositories"
-    "cake-store/cake-store/pkg/logger"
-    "cake-store/cake-store/pkg/routerkit"
-    "cake-store/cake-store/pkg/msgx"
+	"cake-store/cake-store/internal/ucase"
+	"cake-store/cake-store/internal/ucase/cakes"
+	"cake-store/cake-store/internal/ucase/upload"
+	"cake-store/cake-store/pkg/logger"
+	"cake-store/cake-store/pkg/msgx"
+	"cake-store/cake-store/pkg/routerkit"
 
-    ucaseContract "cake-store/cake-store/internal/ucase/contract"
+	ucaseContract "cake-store/cake-store/internal/ucase/contract"
 )
 
 type router struct {
@@ -94,7 +95,7 @@ func (rtr *router) response(w http.ResponseWriter, resp appctx.Response) {
 // Route preparing http router and will return mux router object
 func (rtr *router) Route() *routerkit.Router {
 
-    rtr.router.NotFoundHandler = http.HandlerFunc(middleware.NotFound)
+	rtr.router.NotFoundHandler = http.HandlerFunc(middleware.NotFound)
 	root := rtr.router.PathPrefix("/").Subrouter()
 	in := root.PathPrefix("/in/").Subrouter()
 	liveness := root.PathPrefix("/").Subrouter()
@@ -105,9 +106,9 @@ func (rtr *router) Route() *routerkit.Router {
 	// open tracer setup
 	bootstrap.RegistryOpenTracing(rtr.config)
 
-    // create database session
+	// create database session
 	db := bootstrap.RegistryMultiDatabase(rtr.config.WriteDB, rtr.config.ReadDB)
-    //db := bootstrap.RegistryDatabase(rtr.config.WriteDB)
+	//db := bootstrap.RegistryDatabase(rtr.config.WriteDB)
 	repoExample := repositories.NewCake(db)
 
 	// use case
@@ -117,6 +118,13 @@ func (rtr *router) Route() *routerkit.Router {
 	create := cakes.NewCakeCreate(repoExample)
 	delete := cakes.NewCakeDelete(repoExample)
 	update := cakes.NewCakeUpdate(repoExample)
+	upload := upload.NewUpload(repoExample)
+
+	//Upload File
+	root.HandleFunc("/upload", rtr.handle(
+		handler.HttpRequest,
+		upload,
+	)).Methods(http.MethodPost)
 
 	// healthy
 	liveness.HandleFunc("/liveness", rtr.handle(
@@ -125,29 +133,28 @@ func (rtr *router) Route() *routerkit.Router {
 	)).Methods(http.MethodGet)
 
 	root.HandleFunc("/cakes", rtr.handle(
-	    handler.HttpRequest,
-	    list,
+		handler.HttpRequest,
+		list,
 	)).Methods(http.MethodGet)
 
 	root.HandleFunc("/cakes/{id:[0-9]+}", rtr.handle(
-	    handler.HttpRequest,
-	    detail,
+		handler.HttpRequest,
+		detail,
 	)).Methods(http.MethodGet)
 
 	root.HandleFunc("/cakes", rtr.handle(
-	    handler.HttpRequest,
-	    create,
+		handler.HttpRequest,
+		create,
 	)).Methods(http.MethodPost)
 
 	root.HandleFunc("/cakes/{id:[0-9]+}", rtr.handle(
-	    handler.HttpRequest,
-	    delete,
+		handler.HttpRequest,
+		delete,
 	)).Methods(http.MethodDelete)
 
-
 	root.HandleFunc("/cakes/{id:[0-9]+}", rtr.handle(
-	    handler.HttpRequest,
-	    update,
+		handler.HttpRequest,
+		update,
 	)).Methods(http.MethodPut)
 
 	// this is use case for example purpose, please delete

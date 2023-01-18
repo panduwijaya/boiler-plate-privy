@@ -12,4 +12,9 @@ type (
 		StartDate string `url:"start_date,omitempty" json:"start_date" db:"start_date,omitempty"`
 		EndDate   string `url:"end_date,omitempty" json:"end_date" db:"end_date,omitempty"`
 	}
+
+	RedisPayload struct {
+		Name  string `json:"name"`
+		Email string `json:"email"`
+	}
 )

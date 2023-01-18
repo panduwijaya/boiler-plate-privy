@@ -13,11 +13,6 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type User struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
-
 var ctx = context.Background()
 
 var cfg = appctx.NewConfig()
@@ -39,7 +34,7 @@ func LISTEN() {
 func subscribe(channel ...string) {
 	subscriber := redisClient.Subscribe(ctx, channel...)
 
-	user := User{}
+	var data interface{}
 
 	for {
 		msg, err := subscriber.ReceiveMessage(ctx)
@@ -47,11 +42,23 @@ func subscribe(channel ...string) {
 			fmt.Printf("error format")
 		}
 
-		if err := json.Unmarshal([]byte(msg.Payload), &user); err != nil {
+		if err := json.Unmarshal([]byte(msg.Payload), &data); err != nil {
 			fmt.Printf("error format")
 		}
 
 		fmt.Println("Received message from " + msg.Channel + " channel.")
-		fmt.Printf("%+v\n", user)
+		fmt.Printf("%+v\n", data)
+	}
+}
+
+func Publish(ctx context.Context, param interface{}) {
+	fmt.Println(param)
+	payload, err := json.Marshal(param)
+	if err != nil {
+		panic(err)
+	}
+
+	if err := redisClient.Publish(ctx, "listen-callback-payment", payload).Err(); err != nil {
+		panic(err)
 	}
 }

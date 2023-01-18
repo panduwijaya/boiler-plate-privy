@@ -4,10 +4,12 @@ package cakes
 
 import (
 	"fmt"
+
 	validation "github.com/go-ozzo/ozzo-validation/v4"
 
 	"cake-store/cake-store/internal/appctx"
 	"cake-store/cake-store/internal/consts"
+	"cake-store/cake-store/internal/handler"
 	"cake-store/cake-store/internal/presentations"
 	"cake-store/cake-store/internal/repositories"
 	"cake-store/cake-store/pkg/logger"
@@ -33,8 +35,8 @@ func (u *cakeCreate) Serve(dctx *appctx.Data) appctx.Response {
 			logger.EventName("cakeCreate"),
 		)
 	)
-    defer tracer.SpanFinish(ctx)
-	
+	defer tracer.SpanFinish(ctx)
+
 	err := dctx.Cast(&param)
 	if err != nil {
 		logger.WarnWithContext(ctx, fmt.Sprintf("error parsing query url: %v", err), lf...)
@@ -52,13 +54,15 @@ func (u *cakeCreate) Serve(dctx *appctx.Data) appctx.Response {
 
 	dr, err := u.repo.Store(ctx, param)
 	logger.Info(dr)
+
+	handler.Publish(ctx, param)
 	if err != nil {
-	    tracer.SpanError(ctx, err)
+		tracer.SpanError(ctx, err)
 		logger.ErrorWithContext(ctx, fmt.Sprintf("error find data to database: %v", err), lf...)
 		return *appctx.NewResponse().WithMsgKey(consts.RespError)
 	}
 
 	logger.InfoWithContext(ctx, fmt.Sprintf("success fetch cakes to database"), lf...)
 	return *appctx.NewResponse().
-            WithMsgKey(consts.RespSuccess)
+		WithMsgKey(consts.RespSuccess)
 }
