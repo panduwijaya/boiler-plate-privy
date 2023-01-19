@@ -58,3 +58,20 @@ func (s *fileSystem) Get(_ context.Context, dirPath, fileName string) ([]byte, e
 
 	return b, nil
 }
+
+// Get returns the contents for the given object. If the object does not
+// exist, it returns error not found.
+func (s *fileSystem) GetUrl(_ context.Context, dirPath, fileName string) (string, error) {
+	fp := filepath.Join(dirPath, fileName)
+
+	b, err := ioutil.ReadFile(fp)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return "", ErrNotFound
+		}
+
+		return "", fmt.Errorf("failed to read file: %w", err)
+	}
+	fmt.Println(b)
+	return "", nil
+}

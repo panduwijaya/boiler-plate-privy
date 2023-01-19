@@ -27,3 +27,8 @@ func (s *noop) Delete(_ context.Context, _, _ string) error {
 func (s *noop) Get(_ context.Context, _, _ string) ([]byte, error) {
 	return nil, nil
 }
+
+// Get do nothing
+func (s *noop) GetUrl(_ context.Context, _, _ string) (string, error) {
+	return "", nil
+}

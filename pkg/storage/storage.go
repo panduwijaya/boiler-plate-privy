@@ -19,4 +19,6 @@ type Storage interface {
 
 	// Get fetches the object's contents.
 	Get(ctx context.Context, parent, name string) ([]byte, error)
+
+	GetUrl(ctx context.Context, parent, name string) (string, error)
 }

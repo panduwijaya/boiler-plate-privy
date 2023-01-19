@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -65,6 +66,20 @@ func (s *awss3) Delete(ctx context.Context, bucket, key string) error {
 		return fmt.Errorf("storage delete object: %w", err)
 	}
 	return nil
+}
+
+func (s *awss3) GetUrl(ctx context.Context, bucket, key string) (string, error) {
+	o, _ := s.svc.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	})
+
+	urlStr, err := o.Presign(15 * time.Minute)
+	if err != nil {
+		return "", err
+	}
+
+	return urlStr, nil
 }
 
 // Get returns the contents for the given object. If the object does not

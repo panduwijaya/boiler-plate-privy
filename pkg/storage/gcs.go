@@ -101,3 +101,23 @@ func (s *gcs) Get(ctx context.Context, bucket, object string) ([]byte, error) {
 
 	return b.Bytes(), nil
 }
+
+// Get returns the contents for the given object. If the object does not
+// exist, it returns ErrNotFound.
+func (s *gcs) GetUrl(ctx context.Context, bucket, object string) (string, error) {
+	r, err := s.client.Bucket(bucket).Object(object).NewReader(ctx)
+	if err != nil {
+		if errors.Is(err, storage.ErrObjectNotExist) {
+			return "", ErrNotFound
+		}
+	}
+	defer r.Close()
+
+	var b bytes.Buffer
+	if _, err := io.Copy(&b, r); err != nil {
+		return "", fmt.Errorf("failed to download bytes: %w", err)
+	}
+	
+
+	return "", nil
+}
